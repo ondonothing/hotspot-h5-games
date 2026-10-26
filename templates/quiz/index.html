@@ -100,7 +100,13 @@
         <!-- 广告位预留：游戏结束自然断点 -->
         <div class="ad-placeholder" id="ad-end">
           [广告位预留 - 游戏结束插页/激励视频]
-          <!-- 在此处接入 GameMonetize / CrazyGames / Poki SDK -->
+          <!-- 
+            SDK接入位置（拿到Game ID后替换）：
+            1. 引入官方SDK脚本
+            2. 初始化时传入真实 Game ID
+            3. 在此调用 showAd / rewarded 等方法
+            4. 广告播放前暂停游戏并静音，结束后恢复
+          -->
         </div>
       </div>
     </div>
