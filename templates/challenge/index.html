@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>热点限时挑战</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(160deg, #0f172a, #1e293b);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(30, 41, 59, 0.85);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    h1 { text-align: center; font-size: 1.4rem; margin-bottom: 6px; }
+    .sub { text-align: center; opacity: 0.7; font-size: 0.85rem; margin-bottom: 20px; }
+    .timer {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin: 12px 0;
+    }
+    .score { text-align: center; font-size: 1.1rem; margin-bottom: 16px; }
+    .target {
+      text-align: center;
+      font-size: 1.3rem;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .action-btn {
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #334155;
+      color: white;
+      transition: 0.15s;
+    }
+    .action-btn:active { transform: scale(0.96); }
+    .action-btn.primary { background: linear-gradient(90deg, #0ea5e9, #6366f1); }
+    .result { text-align: center; }
+    .result h2 { font-size: 2rem; margin-bottom: 8px; }
+    .hidden { display: none !important; }
+    .ad-box {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="start">
+      <h1>热点限时挑战</h1>
+      <p class="sub">在限定时间内完成尽可能多的挑战</p>
+      <button class="action-btn primary" style="width:100%" onclick="start()">开始挑战</button>
+    </div>
+
+    <div id="play" class="hidden">
+      <div class="timer" id="timer">30</div>
+      <div class="score">得分：<span id="score">0</span></div>
+      <div class="target" id="target">准备...</div>
+      <div class="btn-grid" id="actions"></div>
+    </div>
+
+    <div id="end" class="hidden">
+      <div class="result">
+        <h2 id="finalScore">0</h2>
+        <p id="rankTitle">称号</p>
+        <button class="action-btn primary" style="width:100%;margin-top:16px" onclick="share()">分享成绩</button>
+        <button class="action-btn" style="width:100%;margin-top:10px" onclick="location.reload()">再来一次</button>
+        <div class="ad-box">
+          [广告位预留 - 游戏结束自然断点]<br>
+          在此处接入 GameMonetize / CrazyGames / Poki SDK
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 可配置热点内容 =====
+    const CONFIG = {
+      duration: 30, // 秒
+      challenges: [
+        { text: "点击“正确”按钮", correct: "正确", wrong: "错误" },
+        { text: "选择“热点”相关选项", correct: "热点", wrong: "冷门" },
+        { text: "快速点“继续”", correct: "继续", wrong: "停止" },
+        { text: "选“真实”", correct: "真实", wrong: "虚假" },
+        { text: "点“确认”", correct: "确认", wrong: "取消" }
+      ]
+    };
+
+    let timeLeft, score, timerInterval, current;
+
+    function start() {
+      document.getElementById('start').classList.add('hidden');
+      document.getElementById('play').classList.remove('hidden');
+      timeLeft = CONFIG.duration;
+      score = 0;
+      document.getElementById('score').innerText = score;
+      document.getElementById('timer').innerText = timeLeft;
+      nextChallenge();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+    }
+
+    function nextChallenge() {
+      current = CONFIG.challenges[Math.floor(Math.random() * CONFIG.challenges.length)];
+      document.getElementById('target').innerText = current.text;
+      const actions = document.getElementById('actions');
+      actions.innerHTML = '';
+      const btns = [
+        { label: current.correct, isCorrect: true },
+        { label: current.wrong, isCorrect: false }
+      ].sort(() => Math.random() - 0.5);
+      btns.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = 'action-btn' + (b.isCorrect ? ' primary' : '');
+        btn.innerText = b.label;
+        btn.onclick = () => {
+          if (b.isCorrect) {
+            score++;
+            document.getElementById('score').innerText = score;
+          }
+          nextChallenge();
+        };
+        actions.appendChild(btn);
+      });
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      document.getElementById('play').classList.add('hidden');
+      document.getElementById('end').classList.remove('hidden');
+      document.getElementById('finalScore').innerText = score;
+      let title = score >= 15 ? "挑战王者" : score >= 8 ? "反应达人" : "继续加油";
+      document.getElementById('rankTitle').innerText = title;
+      // 广告断点
+    }
+
+    function share() {
+      const text = `我在热点限时挑战中获得 ${score} 分，荣获【${document.getElementById('rankTitle').innerText}】！你也来试试？`;
+      if (navigator.share) navigator.share({ title: '热点限时挑战', text });
+      else prompt('复制分享：', text);
+    }
+  </script>
+</body>
+</html>

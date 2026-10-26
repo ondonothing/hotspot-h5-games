@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>热点问答挑战</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; opacity: 0.7; font-size: 0.9rem; margin-bottom: 24px; }
+    .question { font-size: 1.2rem; margin-bottom: 20px; line-height: 1.5; }
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option {
+      background: rgba(255,255,255,0.12);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .option:hover, .option:active { background: rgba(255,255,255,0.2); }
+    .option.correct { border-color: #4ade80; background: rgba(74,222,128,0.2); }
+    .option.wrong { border-color: #f87171; background: rgba(248,113,113,0.2); }
+    .score-board { text-align: center; margin: 16px 0; font-size: 1.1rem; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:active { transform: scale(0.98); }
+    .result { text-align: center; }
+    .result h2 { font-size: 1.8rem; margin-bottom: 8px; }
+    .result .title { font-size: 1.3rem; color: #a5b4fc; margin-bottom: 16px; }
+    .hidden { display: none; }
+    /* 广告位预留 */
+    .ad-placeholder {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 开始页 -->
+    <div id="start-screen">
+      <h1>热点问答挑战</h1>
+      <p class="subtitle">测测你对最新热点的了解程度</p>
+      <button class="btn" onclick="startGame()">开始挑战</button>
+    </div>
+
+    <!-- 游戏页 -->
+    <div id="game-screen" class="hidden">
+      <div class="score-board">得分：<span id="score">0</span> / <span id="total">0</span></div>
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="result-screen" class="hidden">
+      <div class="result">
+        <h2 id="final-score">0</h2>
+        <div class="title" id="final-title">称号</div>
+        <p id="final-desc"></p>
+        <button class="btn" onclick="shareResult()">生成分享文案</button>
+        <button class="btn" style="background:#334155;margin-top:10px;" onclick="restart()">再玩一次</button>
+        <!-- 广告位预留：游戏结束自然断点 -->
+        <div class="ad-placeholder" id="ad-end">
+          [广告位预留 - 游戏结束插页/激励视频]
+          <!-- 在此处接入 GameMonetize / CrazyGames / Poki SDK -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 可配置区域（热点替换这里） ==========
+    const GAME_CONFIG = {
+      title: "热点问答挑战",
+      questions: [
+        {
+          q: "示例问题1：当前最火的热点是什么？",
+          options: ["选项A", "选项B", "选项C", "选项D"],
+          answer: 0
+        },
+        {
+          q: "示例问题2：请替换为真实热点问题",
+          options: ["选项A", "选项B", "选项C", "选项D"],
+          answer: 1
+        },
+        {
+          q: "示例问题3：请替换为真实热点问题",
+          options: ["选项A", "选项B", "选项C", "选项D"],
+          answer: 2
+        }
+      ],
+      titles: [
+        { min: 0, max: 1, title: "热点小白", desc: "还需要多关注时事哦" },
+        { min: 2, max: 2, title: "热点达人", desc: "不错，继续保持！" },
+        { min: 3, max: 99, title: "热点王者", desc: "你就是行走的热搜榜！" }
+      ]
+    };
+    // ========== 配置结束 ==========
+
+    let currentIndex = 0;
+    let score = 0;
+
+    function startGame() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('hidden');
+      currentIndex = 0;
+      score = 0;
+      document.getElementById('total').innerText = GAME_CONFIG.questions.length;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = GAME_CONFIG.questions[currentIndex];
+      document.getElementById('question').innerText = q.q;
+      document.getElementById('score').innerText = score;
+      const optionsEl = document.getElementById('options');
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerText = opt;
+        div.onclick = () => selectOption(i);
+        optionsEl.appendChild(div);
+      });
+    }
+
+    function selectOption(index) {
+      const q = GAME_CONFIG.questions[currentIndex];
+      const options = document.querySelectorAll('.option');
+      options.forEach((el, i) => {
+        el.onclick = null;
+        if (i === q.answer) el.classList.add('correct');
+        else if (i === index) el.classList.add('wrong');
+      });
+      if (index === q.answer) score++;
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex >= GAME_CONFIG.questions.length) {
+          showResult();
+        } else {
+          showQuestion();
+        }
+      }, 800);
+    }
+
+    function showResult() {
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      document.getElementById('final-score').innerText = score + ' / ' + GAME_CONFIG.questions.length;
+      const t = GAME_CONFIG.titles.find(t => score >= t.min && score <= t.max) || GAME_CONFIG.titles[0];
+      document.getElementById('final-title').innerText = t.title;
+      document.getElementById('final-desc').innerText = t.desc;
+
+      // 这里是广告自然断点，后续接入SDK
+      // 例如 GameMonetize: sdk.showBanner();
+    }
+
+    function shareResult() {
+      const text = `我在「${GAME_CONFIG.title}」中获得了 ${score} 分，荣获【${document.getElementById('final-title').innerText}】称号！你也来挑战一下？`;
+      if (navigator.share) {
+        navigator.share({ title: GAME_CONFIG.title, text });
+      } else {
+        prompt('复制分享文案：', text);
+      }
+    }
+
+    function restart() {
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

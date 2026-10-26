@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>热点点击挑战</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(145deg,#0c0a1d,#1a1035);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;user-select:none;-webkit-user-select:none}
+    .wrap{width:100%;max-width:380px;text-align:center}
+    h1{font-size:1.5rem;margin-bottom:4px}
+    .sub{opacity:.7;font-size:.85rem;margin-bottom:20px}
+    .score{font-size:3rem;font-weight:800;color:#a78bfa;margin:12px 0}
+    .time{font-size:1.2rem;margin-bottom:24px}
+    .click-area{
+      width:180px;height:180px;margin:0 auto 24px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#8b5cf6,#6366f1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;font-weight:700;
+      box-shadow:0 10px 30px rgba(139,92,246,.4);
+      cursor:pointer;transition:transform .08s;
+    }
+    .click-area:active{transform:scale(.92)}
+    .btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:12px}
+    .hidden{display:none!important}
+    .ad{margin-top:20px;padding:12px;background:rgba(0,0,0,.3);border-radius:10px;font-size:.75rem;opacity:.7}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="start">
+      <h1>热点点击挑战</h1>
+      <p class="sub">限时内尽可能多地点击</p>
+      <button class="btn" onclick="start()">开始</button>
+    </div>
+    <div id="play" class="hidden">
+      <div class="time">剩余 <span id="t">15</span> 秒</div>
+      <div class="score" id="s">0</div>
+      <div class="click-area" id="area" onclick="tap()">点击!</div>
+    </div>
+    <div id="end" class="hidden">
+      <h1>挑战结束</h1>
+      <div class="score" id="fs">0</div>
+      <p id="title">称号</p>
+      <button class="btn" onclick="share()">分享成绩</button>
+      <button class="btn" style="background:#334155" onclick="location.reload()">再玩一次</button>
+      <div class="ad">[广告位预留 - 游戏结束]<br>接入 GameMonetize / CrazyGames / Poki SDK</div>
+    </div>
+  </div>
+  <script>
+    let score=0,time=15,timer;
+    function start(){
+      document.getElementById('start').classList.add('hidden');
+      document.getElementById('play').classList.remove('hidden');
+      score=0;time=15;
+      document.getElementById('s').innerText=0;
+      document.getElementById('t').innerText=15;
+      timer=setInterval(()=>{
+        time--;document.getElementById('t').innerText=time;
+        if(time<=0){clearInterval(timer);end()}
+      },1000);
+    }
+    function tap(){score++;document.getElementById('s').innerText=score}
+    function end(){
+      document.getElementById('play').classList.add('hidden');
+      document.getElementById('end').classList.remove('hidden');
+      document.getElementById('fs').innerText=score;
+      document.getElementById('title').innerText=score>40?'点击之王':score>20?'手速达人':'继续加油';
+    }
+    function share(){
+      const text=`我在热点点击挑战中获得 ${score} 分！你也来试试？`;
+      if(navigator.share)navigator.share({title:'热点点击挑战',text});
+      else prompt('复制：',text);
+    }
+  </script>
+</body>
+</html>
