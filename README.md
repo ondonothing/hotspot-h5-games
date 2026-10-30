@@ -21,10 +21,11 @@
 - 索引：`games/SAMPLES-INDEX.md`
 
 ## 账号就绪后优先看
-1. `docs/architecture/账号就绪后第1天行动手册.md`
-2. `docs/products/从样品到正式MVP的步骤.md`
-3. `docs/architecture/第一个正式MVP完成定义.md`
-4. `docs/platforms/拿到GameID后的SDK接入检查清单.md`
+1. `docs/architecture/启动日一页纸.md`（最短路径）
+2. `docs/architecture/账号就绪后第1天行动手册.md`
+3. `docs/products/从样品到正式MVP的步骤.md`
+4. `docs/architecture/第一个正式MVP完成定义.md`
+5. `docs/platforms/拿到GameID后的SDK接入检查清单.md`
 
 ## 其他关键入口
 - 完整方案：`docs/完整实施方案与实施计划.md`
