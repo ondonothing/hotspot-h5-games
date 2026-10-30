@@ -19,5 +19,12 @@
 - 可运行模板：`templates/`
 - 就绪样品目录：`games/mvp-ready-quiz-deform/`
 
+
+## 完整变形样品（可直接试玩）
+- `games/sample-quiz-deform-complete/` — 热点人格Quiz
+- `games/sample-challenge-deform-complete/` — 热点反应力挑战
+- `games/sample-clicker-deform-complete/` — 热点手速挑战
+- 索引：`games/SAMPLES-INDEX.md`
+
 ## 下一步
 完成GameMonetize账号后，立即按P0指南启动第一个热点Quiz变形产品。
